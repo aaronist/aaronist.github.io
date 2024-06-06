@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Aaron Blume&#39;s Portfolio</title>
-    <link>https://aaronist.github.io/</link>
+    <link>http://localhost:1313/</link>
     <description>Recent content on Aaron Blume&#39;s Portfolio</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 06 Jun 2024 14:57:58 -0700</lastBuildDate>
-    <atom:link href="https://aaronist.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Discrete Hidden Markov Model for SMS Spam Detection</title>
-      <link>https://aaronist.github.io/posts/sms-spam-detection/</link>
+      <link>http://localhost:1313/posts/sms-spam-detection/</link>
       <pubDate>Thu, 06 Jun 2024 14:57:58 -0700</pubDate>
-      <guid>https://aaronist.github.io/posts/sms-spam-detection/</guid>
+      <guid>http://localhost:1313/posts/sms-spam-detection/</guid>
       <description>This is where I will write about my project.</description>
     </item>
   </channel>
