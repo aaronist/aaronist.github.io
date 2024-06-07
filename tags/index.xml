@@ -6,13 +6,35 @@
     <description>Recent content in Tags on Aaron Blume&#39;s Portfolio</description>
     <generator>Hugo</generator>
     <language>en-us</language>
+    <copyright>&amp;copy 2024 &lt;a href=&#34;https://aaronist.github.io/&#34;&gt;Aaron Blume&lt;/a&gt; | Powered by &lt;a href=&#34;https://gohugo.io/&#34;&gt;Hugo&lt;/a&gt;</copyright>
     <lastBuildDate>Thu, 06 Jun 2024 14:57:58 -0700</lastBuildDate>
     <atom:link href="https://aaronist.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Untagged</title>
-      <link>https://aaronist.github.io/tags/untagged/</link>
+      <title>Algorithms</title>
+      <link>https://aaronist.github.io/tags/algorithms/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://aaronist.github.io/tags/untagged/</guid>
+      <guid>https://aaronist.github.io/tags/algorithms/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Hmm</title>
+      <link>https://aaronist.github.io/tags/hmm/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://aaronist.github.io/tags/hmm/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Machine Learning</title>
+      <link>https://aaronist.github.io/tags/machine-learning/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://aaronist.github.io/tags/machine-learning/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Spam Detection</title>
+      <link>https://aaronist.github.io/tags/spam-detection/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://aaronist.github.io/tags/spam-detection/</guid>
       <description></description>
     </item>
   </channel>

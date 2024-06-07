@@ -5,6 +5,7 @@
         <description>Recent content in Posts on Aaron Blume&#39;s Portfolio</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
+        <copyright>&amp;copy 2024 &lt;a href=&#34;https://aaronist.github.io/&#34;&gt;Aaron Blume&lt;/a&gt; | Powered by &lt;a href=&#34;https://gohugo.io/&#34;&gt;Hugo&lt;/a&gt;</copyright>
         <lastBuildDate>Thu, 06 Jun 2024 14:57:58 -0700</lastBuildDate>
         <atom:link href="https://aaronist.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
         
@@ -14,8 +15,21 @@
             <pubDate>Thu, 06 Jun 2024 14:57:58 -0700</pubDate>
             
             <guid>https://aaronist.github.io/posts/sms-spam-detection/</guid>
-            <description>This is where I will write about my project.</description>
-            <content type="html"><![CDATA[<p>This is where I will write about my project.</p>
+            <description>We&amp;rsquo;ve all received those messages.
+WINNER!! As a valued network customer you have been selected to receivea £900 prize reward! To claim call 09061701461. Claim code KL341. Valid 12 hours only.
+500 New Mobiles from 2021, MUST GO! Txt: NOKIA to No: 89545 &amp;amp; collect yours today!From ONLY £1 2optout 087187262701.50gbp/mtmsg18 TXTAUCTION
+These intentionally misleading messages, commonly referred to as &amp;ldquo;spam&amp;rdquo;, are much more prolific in today&amp;rsquo;s world given the universality and convenience of SMS.</description>
+            <content type="html"><![CDATA[<p>We&rsquo;ve all received those messages.</p>
+<blockquote>
+<p><em>WINNER!! As a valued network customer you have been selected to receivea £900 prize reward! To claim call 09061701461. Claim code KL341. Valid 12 hours only.</em></p>
+</blockquote>
+<blockquote>
+<p><em>500 New Mobiles from 2021, MUST GO! Txt: NOKIA to No: 89545 &amp; collect yours today!From ONLY £1 2optout 087187262701.50gbp/mtmsg18 TXTAUCTION</em></p>
+</blockquote>
+<p>These intentionally misleading messages, commonly referred to as &ldquo;spam&rdquo;, are much more prolific in today&rsquo;s world given the universality and convenience of SMS. Luckily for us, machine learning is also rapidly growing, and it can serve as a great mechanism for automatically filtering spam messages. In fact, there has already been extensive research done on this topic, and I would highly recommend taking a look at the machine learning models that others have deployed in order to tackle this problem.</p>
+<h2 id="references">References</h2>
+<p>[1] V. Tida, S. Hsu. &ldquo;<a href="https://arxiv.org/abs/2202.03480">Universal Spam Detection using Transfer Learning of BERT Model</a>&rdquo;. 2022.</p>
+<p>[2] M. Labonne, S. Moran. &ldquo;<a href="https://arxiv.org/abs/2304.01238">Spam-T5: Benchmarking Large Language Models for Few-Shot Email Spam Detection</a>&rdquo;. 2023.</p>
 ]]></content>
         </item>
         
