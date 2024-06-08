@@ -47,7 +47,7 @@ WINNER!! As a valued network customer you have been selected to receivea £900 p
 These intentionally misleading messages, commonly referred to as “spam”, are much more prolific in today’s world given the universality and convenience of SMS.">
   <meta itemprop="datePublished" content="2024-06-06T14:57:58-07:00">
   <meta itemprop="dateModified" content="2024-06-06T14:57:58-07:00">
-  <meta itemprop="wordCount" content="164">
+  <meta itemprop="wordCount" content="747">
   <meta itemprop="keywords" content="Machine Learning,Hmm,Spam Detection,Algorithms">
 
   <meta name="twitter:card" content="summary">
@@ -75,6 +75,18 @@ These intentionally misleading messages, commonly referred to as “spam”, are
 
 
 
+
+        
+            <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script>
+  MathJax = {
+    tex: {
+      displayMath: [['\\[', '\\]'], ['$$', '$$']],  
+      inlineMath: [['\\(', '\\)']]                  
+    }
+  };
+</script>
+        
     </head>
 
     
@@ -129,7 +141,7 @@ These intentionally misleading messages, commonly referred to as “spam”, are
           <circle cx="12" cy="12" r="10"></circle>
           <polyline points="12 6 12 12 16 14"></polyline>
         </svg>
-        One minute
+        4 minutes
 
         
       </p>
@@ -154,10 +166,44 @@ These intentionally misleading messages, commonly referred to as “spam”, are
 <blockquote>
 <p><em>500 New Mobiles from 2021, MUST GO! Txt: NOKIA to No: 89545 &amp; collect yours today!From ONLY £1 2optout 087187262701.50gbp/mtmsg18 TXTAUCTION</em></p>
 </blockquote>
-<p>These intentionally misleading messages, commonly referred to as &ldquo;spam&rdquo;, are much more prolific in today&rsquo;s world given the universality and convenience of SMS. Luckily for us, machine learning is also rapidly growing, and it can serve as a great mechanism for automatically filtering spam messages. In fact, there has already been extensive research done on this topic, and I would highly recommend taking a look at the machine learning models that others have deployed in order to tackle this problem.</p>
+<p>These intentionally misleading messages, commonly referred to as &ldquo;spam&rdquo;, are much more prolific in today&rsquo;s world given the universality and convenience of SMS. Luckily for us, machine learning is also rapidly growing, and it can serve as a great mechanism for automatically filtering spam messages. In fact, there has already been extensive research done on this topic, and I would highly recommend taking a look at the machine learning models that others have deployed in order to tackle this problem. For example, check out the <a href="(https://arxiv.org/abs/2202.03480)">transfer learning technique used by Vijay Tida and Sonya Hsu</a> as well as the <a href="https://arxiv.org/abs/2304.01238">LLM used by Maxime Labonne and Sean Moran</a>.</p>
+<h2 id="naïve-bayes">Naïve Bayes</h2>
+<p>Bayesian models are a popular way of representing spam classification tasks. We can declare a binary indicator \(Y\) which identifies whether or not a message is spam and a variable \(x_i\) which represents the \(i\)-th word in a message. We can construct a naïve Bayes model by using the bag-of-words model and computing the probabilities of observing a word conditioned on the message&rsquo;s classification. For two arbitrary words, an example distribution might be something like:</p>
+\[
+\begin{aligned}
+\hat{p}(\text{winner} | Y = 1) = 0.00923 \\
+\hat{p}(\text{winner} | Y = 0) = 0.00039
+\end{aligned}
+\]
+\[
+\begin{aligned}
+\hat{p}(\text{sometimes} | Y = 1) = 0.00007 \\
+\hat{p}(\text{sometimes} | Y = 0) = 0.00298
+\end{aligned}
+\]
+<p>The probability of observing a spammy word like &ldquo;winner&rdquo; is much more likely to show up in spam messages than ham (i.e. non-spam) messages. On the other hand, non-spammy words like &ldquo;sometimes&rdquo; are rarely going to be observed in spam messages and are more likely to appear in ham messages. Using this, we can compute a word&rsquo;s score as the log-odds ratio of its probabilities</p>
+\[
+\begin{aligned}
+\eta_i = \log\frac{p(x_i | Y = 1)}{p(x_i | Y = 0)}
+\end{aligned}
+\]
+<p>and sum together the scores of each individual word in the message. The cumulative score of a message classifies it as spam or ham based on some threshold value (typically 0 with positive scores indicating spam and negative scores indicating ham).</p>
+<p>Of course, you may have noticed that this is a very simple model and forces us to assume that each feature is conditionally independent given \(Y\). Each word is treated as an independent observation given the classification of the message being spam or ham. By then applying Bayes&rsquo; rule, we simply accumulate a preference for either category. More generally, we&rsquo;re marginalizing over \(Y\) by adding together the probabilities of what happens when \(Y\) is true (i.e. the product of \(Y = 1\) multiplied against the product of the individual conditional distributions) and when \(Y\) is false.</p>
+\[
+\begin{aligned}
+p(Y = 1 | x) = \frac{p(Y = 1) \prod_i p(x_i | Y = 1)}{p(Y = 1) \prod_i p(x_i | Y = 1) + p(Y = 0) \prod_i p(x_i | Y = 0)}
+\end{aligned}
+\]
+<h2 id="hidden-markov-model">Hidden Markov Model</h2>
+<p>The simplicity of the naïve Bayes model is nice, but we can take this a step further by introducing the Markov assumption: that the future state depends solely on the current state. One of the defining features of a hidden Markov model (HMM) is that it&rsquo;s a memoryless stochastic process. This means that we can easily compute future probabilities in a dynamic fashion without needing to retain all of the preceding states of the model.</p>
+<p>Before continuing any further, I want to give credit to Tian Xia and Xuemin Chen for <a href="https://doi.org/10.3390/app10145011">their research in using HMMs for spam detection</a>. Much of what I completed is based on their research.</p>
+<h3 id="preprocessing">Preprocessing</h3>
+<p>Before we start training any sort of HMM, it&rsquo;s important to get our data in a proper format. For my data, I used the <a href="https://archive.ics.uci.edu/dataset/228/sms+spam+collection">SMS Spam Collection</a> dataset, collected by Tiago Almeida and Jos Hidalgo, which is hosted in the UCI Machine Learning Repository.</p>
 <h2 id="references">References</h2>
-<p>[1] V. Tida, S. Hsu. &ldquo;<a href="https://arxiv.org/abs/2202.03480">Universal Spam Detection using Transfer Learning of BERT Model</a>&rdquo;. 2022.</p>
-<p>[2] M. Labonne, S. Moran. &ldquo;<a href="https://arxiv.org/abs/2304.01238">Spam-T5: Benchmarking Large Language Models for Few-Shot Email Spam Detection</a>&rdquo;. 2023.</p>
+<p>[1] M. Labonne, S. Moran. &ldquo;<a href="https://arxiv.org/abs/2304.01238">Spam-T5: Benchmarking Large Language Models for Few-Shot Email Spam Detection</a>&rdquo;. 2023.</p>
+<p>[2] T. Almeida, J. Hidalgo. &ldquo;<a href="https://doi.org/10.24432/C5CC84">SMS Spam Collection</a>&rdquo;. <em>UCI Machine Learning Repository</em>. 2012.</p>
+<p>[3] T. Xia, X. Chen. &ldquo;<a href="https://doi.org/10.3390/app10145011">A Discrete Hidden Markov Model for SMS Spam Detection</a>&rdquo;. <em>Appl. Sci.</em> 2020.</p>
+<p>[4] V. Tida, S. Hsu. &ldquo;<a href="https://arxiv.org/abs/2202.03480">Universal Spam Detection using Transfer Learning of BERT Model</a>&rdquo;. 2022.</p>
 
       </div>
     </article>
@@ -186,7 +232,7 @@ These intentionally misleading messages, commonly referred to as “spam”, are
           <line x1="16" y1="17" x2="8" y2="17"></line>
           <polyline points="10 9 9 9 8 9"></polyline>
         </svg>
-        164 Words
+        747 Words
       </p>
 
       <p>
