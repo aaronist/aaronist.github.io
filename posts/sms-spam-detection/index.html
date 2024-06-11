@@ -47,7 +47,7 @@ WINNER!! As a valued network customer you have been selected to receivea £900 p
 These intentionally misleading messages, commonly referred to as “spam”, are much more prolific in today’s world given the universality and convenience of SMS.">
   <meta itemprop="datePublished" content="2024-06-06T14:57:58-07:00">
   <meta itemprop="dateModified" content="2024-06-06T14:57:58-07:00">
-  <meta itemprop="wordCount" content="747">
+  <meta itemprop="wordCount" content="1972">
   <meta itemprop="keywords" content="Machine Learning,Hmm,Spam Detection,Algorithms">
 
   <meta name="twitter:card" content="summary">
@@ -141,7 +141,7 @@ These intentionally misleading messages, commonly referred to as “spam”, are
           <circle cx="12" cy="12" r="10"></circle>
           <polyline points="12 6 12 12 16 14"></polyline>
         </svg>
-        4 minutes
+        10 minutes
 
         
       </p>
@@ -183,27 +183,62 @@ These intentionally misleading messages, commonly referred to as “spam”, are
 \]
 <p>The probability of observing a spammy word like &ldquo;winner&rdquo; is much more likely to show up in spam messages than ham (i.e. non-spam) messages. On the other hand, non-spammy words like &ldquo;sometimes&rdquo; are rarely going to be observed in spam messages and are more likely to appear in ham messages. Using this, we can compute a word&rsquo;s score as the log-odds ratio of its probabilities</p>
 \[
-\begin{aligned}
 \eta_i = \log\frac{p(x_i | Y = 1)}{p(x_i | Y = 0)}
-\end{aligned}
 \]
 <p>and sum together the scores of each individual word in the message. The cumulative score of a message classifies it as spam or ham based on some threshold value (typically 0 with positive scores indicating spam and negative scores indicating ham).</p>
 <p>Of course, you may have noticed that this is a very simple model and forces us to assume that each feature is conditionally independent given \(Y\). Each word is treated as an independent observation given the classification of the message being spam or ham. By then applying Bayes&rsquo; rule, we simply accumulate a preference for either category. More generally, we&rsquo;re marginalizing over \(Y\) by adding together the probabilities of what happens when \(Y\) is true (i.e. the product of \(Y = 1\) multiplied against the product of the individual conditional distributions) and when \(Y\) is false.</p>
 \[
-\begin{aligned}
 p(Y = 1 | x) = \frac{p(Y = 1) \prod_i p(x_i | Y = 1)}{p(Y = 1) \prod_i p(x_i | Y = 1) + p(Y = 0) \prod_i p(x_i | Y = 0)}
-\end{aligned}
 \]
 <h2 id="hidden-markov-model">Hidden Markov Model</h2>
 <p>The simplicity of the naïve Bayes model is nice, but we can take this a step further by introducing the Markov assumption: that the future state depends solely on the current state. One of the defining features of a hidden Markov model (HMM) is that it&rsquo;s a memoryless stochastic process. This means that we can easily compute future probabilities in a dynamic fashion without needing to retain all of the preceding states of the model.</p>
 <p>Before continuing any further, I want to give credit to Tian Xia and Xuemin Chen for <a href="https://doi.org/10.3390/app10145011">their research in using HMMs for spam detection</a>. Much of what I completed is based on their research.</p>
 <h3 id="preprocessing">Preprocessing</h3>
 <p>Before we start training any sort of HMM, it&rsquo;s important to get our data in a proper format. For my data, I used the <a href="https://archive.ics.uci.edu/dataset/228/sms+spam+collection">SMS Spam Collection</a> dataset, collected by Tiago Almeida and Jos Hidalgo, which is hosted in the UCI Machine Learning Repository.</p>
+<p>As with any proper machine learning model, we need to split our data into two categories: training and testing. Because the SMS Spam Collection dataset is not very large (with only 5,574 entries), I decided to use \(\frac{2}{3}\) of the data for training and \(\frac{1}{3}\) of the data for testing.</p>
+<p>The next step for my preprocessing procedure is commonly used in information retrieval methods. While it would be nice to use term-ranking metrics like tf-idf, this is not practical for SMS messages due to the high variation of words used by individuals in their messages. For those unaware, tf-idf is a measure of a term&rsquo;s importance to a particular document/message within a provided corpus. For a term \(t\), a document \(d\), and a corpus of documents \(D\), the tf-idf score is calculated as follows:</p>
+\[
+\text{tf-idf}(t, d, D) = \frac{f_{t, d}}{\sum_{t' \in d} f_{t', d}} \cdot \log \left(\frac{|D|}{|\{d: d \in D\text{ and }t \in d\}|}\right)
+\]
+<p>The first term of the multiplication is the relative frequency of a term \(t\) in a document \(d\), where \(f_{t, d}\) is the number of times term \(t\) appears in document \(d\). The second term of the multiplication is the inverse document frequency of a term \(t\) in a corpus \(D\), i.e. the log of the number of documents in the corpus divided by the number of documents in the corpus that contain the term \(t\). The inverse document frequency essentially explains how rare a term is in the corpus; the rarer a term, the more important it is.</p>
+<p>So, going back to the problem regarding SMS messages, you might be able to see that using the inverse document frequency has a glaring problem. In a corpus of SMS messages, many of the words we encounter will likely only appear once or twice since people tend to use different acronyms, different abbreviations, different spellings, and so on. As a result, we can&rsquo;t properly assign the importance of a word with this metric because <em>many</em> of the words will be considered important.</p>
+<p>This means we won&rsquo;t be using tf-idf scores to weight each term in a message, but we can eliminate some of this inconsistency by tokenizing, lowercasing, and lemmatizing each message. Python&rsquo;s NLTK package allows us to easily tokenize and lemmatize the messages as well as remove stop words from the dataset.</p>
+<h3 id="training">Training</h3>
+<p>After obtaining the preprocessed data, the next step is to train the HMM. A basic HMM \(\lambda\) can be decomposed into 3 parameters: \(\lambda = (A, B, \pi)\). Matrix \(A\) represents the state transition matrix, matrix \(B\) represents the observation probability matrix, and \(\pi\) represents the initial state probability distribution. Since we need to initialize these parameters, it&rsquo;s easiest to assign equal probabilities to each state (spam and ham) for \(A\) and \(\pi\). \(B\) is computed by computing the disjoint relative frequencies of each word in the spam and ham training datasets.</p>
+<p>Training the HMM is the ultimate crux of this problem, but thankfully, the Baum-Welch algorithm is a popular way to train HMMs with these two high-level steps:</p>
+<ol>
+<li>Expectation step: Use observation sequence and current \(\lambda\) to compute the log-likelihood of the model.</li>
+<li>Maximization step: Recompute the model&rsquo;s parameters to maximize the log-likelihood.</li>
+</ol>
+<p>The entire premise is that we want to find the HMM parameters such that a given observation sequence has the highest likelihood of occurring. The Baum-Welch algorithm achieves this by looping those two steps until the parameters converge (or until we&rsquo;re satisfied with the results).</p>
+<p>Therefore, we can flatten the preprocessed training messages to treat it as a single observation sequence and use that to train the HMM.</p>
+<h3 id="predicting">Predicting</h3>
+<p>We&rsquo;re in the final stage of this problem, and that&rsquo;s determining how we should predict the classification of an SMS message. Since each word is treated as a feature in the HMM, we&rsquo;re going to end up with a classification for every word in athe message. However, we want a single classification for the entire message, so it&rsquo;s easiest to just select the majority vote as the classification for the message.</p>
+<p>The Viterbi algorithm is a dynamic programming decoding algorithm which determines the most probable path (i.e. sequence of hidden states) which should result in the given observed sequence. For example, given the observed sequence</p>
+\[
+\text{hello Friend! I have a great offer 4 u. call me now at...}
+\]
+<p>the Viterbi algorithm will obtain the sequence of hidden states that makes this observation most likely. In this case, it might be something like</p>
+\[
+\underbrace{\text{hello}}_{\text{ham}}\text{ }\underbrace{\text{Friend!}}_{\text{spam}}\text{ }\underbrace{\text{I}}_{\text{ham}}\text{ }\underbrace{\text{have}}_{\text{ham}}\text{ }\underbrace{\text{a}}_{\text{ham}}\text{ }\underbrace{\text{great}}_{\text{ham}}\text{ }\underbrace{\text{offer}}_{\text{spam}}\text{ }\underbrace{\text{4}}_{\text{spam}}\text{ }\underbrace{\text{u.}}_{\text{spam}}\text{ }\underbrace{\text{call}}_{\text{spam}}\text{ }\underbrace{\text{me}}_{\text{spam}}\text{ }\underbrace{\text{now}}_{\text{spam}}\text{ }\underbrace{\text{at}}_{\text{spam}}\text{...}
+\]
+<p>The message starts off seeming like ham, but after a few suspicous words, the Viterbi algorithm realizes that the most probable path is along the spam route. (Note that this example is not entirely accurate as I&rsquo;m including stop words and ignoring fluctuations in the algorithm, but the principle is the same.)</p>
+<p>Similar to the Baum-Welch algorithm, the Viterbi algorithm has a forward-backward structure in which it firsts iterates forward through the sequence to compute the probabilities of observing that sequence, and then it iterates backwards through those probabilities to determine which assignments correspond to the maximum likelihood. This task is equivalent to solving:</p>
+\[
+\underset{Y_0, \ Y_1, \ ..., \ Y_N}{\text{arg max}} \ p(Y_0, \ Y_1, \ ..., \ Y_N, \ X_0 = x_0, \ X_1 = x_1, \ ..., \ X_N = x_N)
+\]
+<p>That is, in a message of length \(N\), we&rsquo;re computing the \(\text{arg max}\) of hidden states across the entire observation sequence. Thus, by taking each message in the testing dataset and preprocessing it the same way as the training dataset, we can feed each message into the Viterbi algorithm, find the majority vote classification, and obtain the model&rsquo;s prediction for that message&rsquo;s classification.</p>
+<h3 id="the-outcome">The Outcome</h3>
+<p>In the end, I was able to obtain a total accuracy of around 90% with this model. Ham messages tended to be correctly classified 90-95% of the time, and spam messages were classified correctly roughly 75-85% of the time.</p>
+<p>There does appear to be a high false negative rate with this model, but practically speaking, I think this is preferred to having a high false positive rate since filtering out potentially important messages is more inconvenient than not filtering out spam messages. Of course, the parameters can easily be tuned to prefer one type over the other. The model I designed defaults to predicting ham for words it has never encountered before, and this is largely the cause of the high false negative rate. If I change this behavior to predict spam for such words, I end up with a much higher spam detection rate (&gt; 95%) but a lower ham detection rate (&lt; 75%).</p>
+<p>While these results are nice, there is definitely room for improvement. For instance, it might be viable to use enhanced language preprocessing steps to better tokenize and simplify the observation state distribution. It would also certainly be useful to obtain a larger dataset for more training data.</p>
+<p>The big takeaway, I feel, is that simple ML models definitely have the capacity to be nearly as effective as complex models. All 1,858 SMS messages in the testing dataset were classified in just a few seconds, and I think that&rsquo;s one of the major advantages of using a simple model with simple algorithms.</p>
 <h2 id="references">References</h2>
-<p>[1] M. Labonne, S. Moran. &ldquo;<a href="https://arxiv.org/abs/2304.01238">Spam-T5: Benchmarking Large Language Models for Few-Shot Email Spam Detection</a>&rdquo;. 2023.</p>
-<p>[2] T. Almeida, J. Hidalgo. &ldquo;<a href="https://doi.org/10.24432/C5CC84">SMS Spam Collection</a>&rdquo;. <em>UCI Machine Learning Repository</em>. 2012.</p>
-<p>[3] T. Xia, X. Chen. &ldquo;<a href="https://doi.org/10.3390/app10145011">A Discrete Hidden Markov Model for SMS Spam Detection</a>&rdquo;. <em>Appl. Sci.</em> 2020.</p>
-<p>[4] V. Tida, S. Hsu. &ldquo;<a href="https://arxiv.org/abs/2202.03480">Universal Spam Detection using Transfer Learning of BERT Model</a>&rdquo;. 2022.</p>
+<p>[1] D. Batista. &ldquo;<a href="https://www.davidsbatista.net/blog/2017/11/11/HHM_and_Naive_Bayes/">Hidden Markov Model and Naive Bayes relationship</a>&rdquo;. 2017.</p>
+<p>[2] M. Labonne, S. Moran. &ldquo;<a href="https://arxiv.org/abs/2304.01238">Spam-T5: Benchmarking Large Language Models for Few-Shot Email Spam Detection</a>&rdquo;. 2023.</p>
+<p>[3] T. Almeida, J. Hidalgo. &ldquo;<a href="https://doi.org/10.24432/C5CC84">SMS Spam Collection</a>&rdquo;. <em>UCI Machine Learning Repository</em>. 2012.</p>
+<p>[4] T. Xia, X. Chen. &ldquo;<a href="https://doi.org/10.3390/app10145011">A Discrete Hidden Markov Model for SMS Spam Detection</a>&rdquo;. <em>Appl. Sci.</em> 2020.</p>
+<p>[5] V. Tida, S. Hsu. &ldquo;<a href="https://arxiv.org/abs/2202.03480">Universal Spam Detection using Transfer Learning of BERT Model</a>&rdquo;. 2022.</p>
 
       </div>
     </article>
@@ -232,7 +267,7 @@ p(Y = 1 | x) = \frac{p(Y = 1) \prod_i p(x_i | Y = 1)}{p(Y = 1) \prod_i p(x_i | Y
           <line x1="16" y1="17" x2="8" y2="17"></line>
           <polyline points="10 9 9 9 8 9"></polyline>
         </svg>
-        747 Words
+        1972 Words
       </p>
 
       <p>
